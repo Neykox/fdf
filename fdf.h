@@ -13,8 +13,10 @@
 #ifndef FDF_H
 # define FDF_H
 
-# include "minilibx_macos/mlx.h"
-# include "minilibx_macos/libmlx.a"
+// # include <mlx.h>
+# include "mlx_linux/mlx.h"
+// # include "mlx_linux/libmlx.a"
+// # include "mlx_linux/libmlx_Linux.a"
 
 # include <stdlib.h>
 
