@@ -19,11 +19,22 @@
 // # include "mlx_linux/libmlx_Linux.a"
 
 # include <stdlib.h>
+# include <X11/keysym.h>
+
+typedef struct s_img
+{
+	void	*img_ptr;
+	char	*addr;
+	int		bpp;
+	int		line_len;
+	int		endian;
+}				t_img;
 
 typedef struct s_info
 {
 	void	*id;
 	void	*wd_ptr;
+	t_img	img;
 }				t_info;
 
 #endif
