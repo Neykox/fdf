@@ -1,17 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fdf.h                                              :+:      :+:    :+:   */
+/*   fdf2.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aleroy <aleroy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/08 17:52:30 by aleroy            #+#    #+#             */
-/*   Updated: 2021/10/08 17:52:31 by aleroy           ###   ########.fr       */
+/*   Created: 2021/11/23 21:01:35 by aleroy            #+#    #+#             */
+/*   Updated: 2021/11/23 21:01:37 by aleroy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FDF_H
-# define FDF_H
+
+#ifndef FDF2_H
+# define FDF2_H
 
 // # include <mlx.h>
 # include "mlx_linux/mlx.h"
@@ -22,6 +23,7 @@
 # include <fcntl.h>//open
 # include <stdlib.h>//malloc
 # include <X11/keysym.h>
+# include <math.h>
 
 typedef struct s_coor
 {
@@ -32,6 +34,7 @@ typedef struct s_coor
 	int		yold;
 	int		zold;
 	int		color;
+	int	tile_size;
 }				t_coor;
 
 typedef struct s_img
@@ -43,23 +46,23 @@ typedef struct s_img
 	int		endian;
 }				t_img;
 
-// typedef struct s_info//main2
-// {
-// 	void	*id;
-// 	void	*wd_ptr;
-// 	int	z;
-// 	int	wd_height;
-// 	int	wd_width;
-// 	int	tile_size;
-// 	t_img	img;
-// }				t_info;
-
-typedef struct s_info
+typedef struct s_info//main2
 {
 	void	*id;
 	void	*wd_ptr;
+	int	z;
+	int	wd_height;
+	int	wd_width;
+	int	tile_size;
 	t_img	img;
 }				t_info;
+
+// typedef struct s_info
+// {
+// 	void	*id;
+// 	void	*wd_ptr;
+// 	t_img	img;
+// }				t_info;
 
 //libft
 int		ft_wordcount(char const *str, char c);
@@ -77,15 +80,15 @@ int	modif_buf_gnl(char *buf);
 char	*gnl2(char *line, char *buf);
 char	*get_next_line(int fd);
 
-void	connect_lines(t_img *img, t_coor *coor, char *line, char *line2);
-void	connect_point(t_img *img, t_coor *coor, char *line);
+void	connect_lines(t_info *info, t_coor *coor, char *line, char *line2);
+void	connect_point(t_info *info, t_coor *coor, char *line);
 void	place_point(t_img *img, t_coor coor);
 void bresenham(t_img *img, t_coor *coor);
-void	clear_background(t_img *img, int color);
+void	clear_background(t_info *info, int color);
 void	img_pix_put(t_img *img, int x, int y, int color);
 // int	get_coor(t_coor *coor, char *line, int i);
 int	get_coor(t_coor *coor, char *line, int i, int *z);
-int	render(t_info *info, char *line, int fd);
+int	render(t_info *info, char **line);
 int	handle_event(int key_sym, t_info *info);
 int	main(int argc, char **argv);
 

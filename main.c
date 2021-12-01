@@ -46,6 +46,18 @@ void	place_point(t_img *img, t_coor coor)
 	img_pix_put(img , coor.x1, coor.y1, coor.color);
 }
 
+void	place_point2(t_img *img, int coorx, int coory, int color)
+{
+	int	x;
+	int	y;
+
+	x = coorx;
+	y = coory;
+	coorx = x - y;
+	coory = (x + y) / 2;
+	img_pix_put(img , coorx, coory, color);
+}
+
 // The pseudocode for the loop then looks like this:
 
 // for(i, loop through rows)
@@ -55,17 +67,79 @@ void	place_point(t_img *img, t_coor coor)
 //     tileType = levelData[i][j]
 //     placetile(tileType, twoDToIso(new Point(x, y)))
 
+void bresenham2(t_img *img, t_coor *coor)
+{
+	int x;
+	int y;
+	int m_new = 2 * (coor->x1 - coor->xold);//original slope?
+	int slope_error_new = m_new - (coor->y1 - coor->yold);
+
+	x = coor->xold;
+	y = coor->yold;
+	// coor->color = 0xff0000;//= red
+	while (y <= coor->y1)
+	{
+		// img_pix_put(img, x, y, coor->color);
+		place_point2(img, x, y, coor->color);
+	  // cout << "(" << x << "," << y << ")\n";
+
+	  // Add slope to increment angle formed
+	  slope_error_new += m_new;
+
+	  // Slope error reached limit, time to
+	  // increment y and update slope error.
+		if (slope_error_new >= 0)
+		{
+			x++;
+			slope_error_new  -= 2 * (coor->y1 - coor->yold);
+		}
+		y++;
+	}
+	// coor->color = 0xffffff;
+}
+
+void bresenham(t_img *img, t_coor *coor)
+{
+	int x;
+	int y;
+	int m_new = 2 * (coor->y1 - coor->yold);//original slope?
+	int slope_error_new = m_new - (coor->x1 - coor->xold);
+
+	x = coor->xold;
+	y = coor->yold;
+	// coor->color = 0xff0000;//= red
+	while (x <= coor->x1)
+	{
+		// img_pix_put(img, x, y, coor->color);
+		place_point2(img, x, y, coor->color);
+	  // cout << "(" << x << "," << y << ")\n";
+
+	  // Add slope to increment angle formed
+	  slope_error_new += m_new;
+
+	  // Slope error reached limit, time to
+	  // increment y and update slope error.
+		if (slope_error_new >= 0)
+		{
+			y++;
+			slope_error_new  -= 2 * (coor->x1 - coor->xold);
+		}
+		x++;
+	}
+	// coor->color = 0xffffff;
+}
+
 // void bresenham(t_img *img, t_coor *coor)
 // {
 // 	int x;
 // 	int y;
-// 	int m_new = 2 * (coor->y2 - coor->y1);//original slope?
-// 	int slope_error_new = m_new - (coor->x2 - coor->x1);
+// 	int m_new = 2 * (coor->y1 - coor->yold);//original slope?
+// 	int slope_error_new = m_new - (coor->x1 - coor->xold);
 
-// 	x = coor->x1;
-// 	y = coor->y1;
+// 	x = coor->xold;
+// 	y = coor->yold;
 // 	coor->color = 0xff0000;//= red
-// 	while (x <= coor->x2)
+// 	while (x <= coor->x1)
 // 	{
 // 		img_pix_put(img, x, y, coor->color);
 // 	  // cout << "(" << x << "," << y << ")\n";
@@ -78,42 +152,12 @@ void	place_point(t_img *img, t_coor coor)
 // 		if (slope_error_new >= 0)
 // 		{
 // 			y++;
-// 			slope_error_new  -= 2 * (coor->x2 - coor->x1);
+// 			slope_error_new  -= 2 * (coor->x1 - coor->xold);
 // 		}
 // 		x++;
 // 	}
 // 	coor->color = 0xffffff;
 // }
-
-void bresenham(t_img *img, t_coor *coor)
-{
-	int x;
-	int y;
-	int m_new = 2 * (coor->y1 - coor->y2);//original slope?
-	int slope_error_new = m_new - (coor->x1 - coor->x2);
-
-	x = coor->x2;
-	y = coor->y2;
-	coor->color = 0xff0000;//= red
-	while (x <= coor->x1)
-	{
-		img_pix_put(img, x, y, coor->color);
-	  // cout << "(" << x << "," << y << ")\n";
-
-	  // Add slope to increment angle formed
-	  slope_error_new += m_new;
-
-	  // Slope error reached limit, time to
-	  // increment y and update slope error.
-		if (slope_error_new >= 0)
-		{
-			y++;
-			slope_error_new  -= 2 * (coor->x1 - coor->x2);
-		}
-		x++;
-	}
-	coor->color = 0xffffff;
-}
 
 void	clear_background(t_img *img, int color)
 {
@@ -142,66 +186,15 @@ void	img_pix_put(t_img *img, int x, int y, int color)
 	*(int *)pixel = color;
 }
 
-int	ft_atoi(const char *str)
-{
-	int		j;
-	int		result;
-	int		sign;
-
-	j = 0;
-	sign = 1;
-	result = 0;
-	while ((str[j] >= 9 && str[j] <= 13) || str[j] == 32)
-		j++;
-	if (str[j] == '-')
-		sign = -1;
-	if (str[j] == '-' || str[j] == '+')
-		j++;
-	while (str[j] != '\0' && str[j] >= '0' && str[j] <= '9')
-	{
-		result = (result * 10) + (str[j] - 48);
-		j++;
-	}
-	return (result * sign);
-}
-
-size_t	ft_strlen(const char *s)
-{
-	size_t i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
-}
-
-char	*ft_strdup(const char *s1)
-{
-	char	*copie;
-	char	*str;
-	int		i;
-
-	i = 0;
-	str = (char*)s1;
-	if (!(copie = (char *)malloc((ft_strlen(str) + 1) * sizeof(char))))
-		return (NULL);
-	while (str[i])
-	{
-		copie[i] = str[i];
-		i++;
-	}
-	copie[i] = '\0';
-	return (copie);
-}
-
-int	get_coor(t_coor *coor, char *line, int i)
+int	get_coor(t_coor *coor, char *line, int i, int *z)
 {
 	while (line[i] == ' ' && line[i])
 		i++;
 	if (!((line[i] == '-' || line[i] == '+' || (line[i] >= '0'
 		&& line[i] <= '9')) && line[i]))
 		return (-1);
-	coor->z1 = ft_atoi(&line[i]);
+	// coor->z1 = ft_atoi(&line[i]);
+	*z = ft_atoi(&line[i]);
 	while ((line[i] == '-' || line[i] == '+') && line[i])
 		i++;
 	while (line[i] >= '0' && line[i] <= '9' && line[i])
@@ -215,68 +208,88 @@ int	get_coor(t_coor *coor, char *line, int i)
 void	connect_point(t_img *img, t_coor *coor, char *line)
 {
 	int	i;
+	int	temp;
+	int temp2;
 	int	count;
 
 	i = 0;
 	count = 0;
-	coor->y2 = coor->y1;
+	coor->color = 0xff0000;//= red
+	temp = coor->yold;
+	temp2 = coor->zold;
+	coor->yold = coor->y1;
 	while (line[i])
 	{
-		i = get_coor(coor, line, i);
-		coor->z2 = coor->z1;
-		coor->x2 = coor->x1;
+		i = get_coor(coor, line, i, &coor->z1);
+		coor->zold = coor->z1;
+		coor->xold = coor->x1;
 		coor->x1 = coor->x1 + 15;
 		if (count == 0)
-			i = get_coor(coor, line, i);
-		count++;
+			i = get_coor(coor, line, i, &coor->z1);
+		count = 1;
 		// printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
-		// printf("x2 = %d, y2 = %d, z2 = %d\n", coor->x2, coor->y2, coor->z2);
+		// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
+		coor->color = 0xff0000;//red
 		bresenham(img, coor);
+	}
+	coor->yold = temp;
+	coor->zold = temp2;
+}
+
+void	connect_lines(t_img *img, t_coor *coor, char *line, char *line2)// de line2 vers line
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (line[i] && line2[j])
+	{
+		j = get_coor(coor, line2, j, &coor->zold);
+		i = get_coor(coor, line, i, &coor->z1);
+		coor->xold = coor->x1;
+		// printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
+		// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
+		coor->color = 0x9b30ff;//purple
+		bresenham2(img, coor);
+		coor->x1 = coor->x1 + 15;
 	}
 }
 
-void	connect_lines(t_img *img, t_coor *coor, char *line, char *line2)
-{}
-
 int	render(t_info *info, char *line, int fd) //need to handle /n in line
 {
-	// free(line);
-	// fd++;
-
 	char	*line2;
 	t_coor coor;
 	int i;
 
 	i = 0;
 	line2 = NULL;
+	coor.x1 = WINDOW_WIDTH / 3;
+	coor.y1 = 0;//(coor.x1 + coor.y1) / 2
 	coor.z1 = 0;
-	// int row = 0;
-	// int col = 0;
+	coor.xold = 0;
+	coor.yold = 0;
+	coor.zold = 0;
 	// coor.color = 0xff0000;//= red
 	// if (info->wd_ptr == NULL)
 	// 	return (1);
 	clear_background(&info->img, 0x0);//black #define BLACK_PIXEL 0x0 (purple = 0x9b30ff)
-	// render_rect(&data->img, (t_rect){WINDOW_WIDTH - 100, WINDOW_HEIGHT - 100, 100, 100, GREEN_PIXEL});
-	// render_rect(&data->img, (t_rect){0, 0, 100, 100, RED_PIXEL});
 	while (line)
 	{
 		i = 0;
 		while (line[i])
 		{
-			i = get_coor(&coor, line, i);
+			i = get_coor(&coor, line, i, &coor.z1);
 			if (i == -1)
 				return (-1);
-			// place_point(&info->img, coor);
-			img_pix_put(&info->img , coor.x1, coor.y1, coor.color);
-			// coor.z1++;
-			// printf("i = %d, z = %d\n", i, coor.z1);
+			place_point(&info->img, coor);
+			// img_pix_put(&info->img , coor.x1, coor.y1, coor.color);
+			printf("render z = %d\n", coor.z1);
 			// coor.x1 = row * 6;
 			coor.x1 = coor.x1 + 15;
-			// row++;
 		}
-		coor.x1 = 0;
+		coor.x1 = WINDOW_WIDTH / 3;
 		connect_point(&info->img, &coor, line);//axe x
-		coor.x1 = 0;
 		if (line2 != NULL)
 			free(line2);
 		line2 = ft_strdup(line);
@@ -285,12 +298,17 @@ int	render(t_info *info, char *line, int fd) //need to handle /n in line
 		if (line2 == NULL)
 			return (-1);
 		if (line == NULL)
+		{
+			// free(line);
 			break;//return (-1);?
-		connect_lines(&info->img, &coor, line, line2);//axe y
-		// coor.y1 = col * 4;
+		}
+
+		coor.yold = coor.y1;
 		coor.y1 = coor.y1 + 15;
-		coor.x1 = 0;
-		// col++;
+		coor.x1 = WINDOW_WIDTH / 3;
+		connect_lines(&info->img, &coor, line, line2);//axe y
+		coor.x1 = WINDOW_WIDTH / 3;
+		// coor.y1 = col * 4;
 		// if (col == 1)
 		// 	coor.color = 0x00ff00;
 		// else if (col == 2)
@@ -299,6 +317,8 @@ int	render(t_info *info, char *line, int fd) //need to handle /n in line
 
 
 	mlx_put_image_to_window(info->id, info->wd_ptr, info->img.img_ptr, 0, 0);
+	if (line2 != NULL)
+			free(line2);
 
 	return (0);
 }
@@ -347,6 +367,7 @@ int	main(int argc, char **argv)
 		printf("error line\n");
 		return (-1);
 	}
+
 	info.id = mlx_init();
 	if (info.id == NULL)
 	{
