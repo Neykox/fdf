@@ -70,8 +70,9 @@ void	place_point2(t_img *img, int coorx, int coory, int z, int color)// z / 2   
 	y = coory;
 	coorx = x - y;
 	coory = (x + y) / 2;
-	if (z != 0)
-		color = 0x00ff00;
+	z++;
+	// if (z != 0)
+	// 	color = 0x00ff00;
 	img_pix_put(img , coorx, coory, color);
 	// float	x;
 	// float	y;
@@ -288,8 +289,11 @@ void	connect_point(t_info *info, t_coor *coor, char *line)
 	// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
 	while (line[i])
 	{
+		if (count == 1)
+			coor->zold = coor->z1;
 		i = get_coor(coor, line, i, &coor->z1);
-		coor->zold = coor->z1;
+		if (count == 0)
+			coor->zold = coor->z1;
 
 		// if (count == 0)
 		// 	coor->yold = coor->yold - coor->zold;
@@ -302,7 +306,10 @@ void	connect_point(t_info *info, t_coor *coor, char *line)
 		count = 1;
 		printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
 		printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
-		coor->color = 0xff0000;//red
+		if (coor->z1 != 0 || coor->zold != 0)
+			coor->color = 0x00ff00;
+		else
+			coor->color = 0xff0000;//red
 		bresenham(&info->img, coor);
 	}
 	// coor->yold = temp;
@@ -327,7 +334,10 @@ void	connect_lines(t_info *info, t_coor *coor, char *line, char *line2)// de lin
 
 		// printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
 		// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
-		coor->color = 0x9b30ff;//purple
+		if (coor->z1 != 0 || coor->zold != 0)
+			coor->color = 0x00ff00;
+		else
+			coor->color = 0x9b30ff;//purple
 		bresenham2(&info->img, coor);
 		coor->x1 = coor->x1 + info->tile_size;
 	}
