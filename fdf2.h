@@ -30,9 +30,13 @@ typedef struct s_coor
 	int		x1;
 	int		y1;
 	int		z1;
+	int		_2dx1;
+	int		_2dy1;
 	int		xold;
 	int		yold;
 	int		zold;
+	int		_2dxold;
+	int		_2dyold;
 	int		color;
 	int	tile_size;
 }				t_coor;
@@ -80,10 +84,17 @@ int	modif_buf_gnl(char *buf);
 char	*gnl2(char *line, char *buf);
 char	*get_next_line(int fd);
 
+void	rev_coor(t_img *img, t_coor *coor);
+void bresenham4(t_img *img, t_coor *coor);
+void bresenham3(t_img *img, t_coor *coor);
+void bresenham2(t_img *img, t_coor *coor);
+void bresenham(t_img *img, t_coor *coor);
+void	bresenham_new(t_img *img, t_coor *coor);
+
+void	place_point3(t_img *img, int coorx, int coory, int color);
 void	connect_lines(t_info *info, t_coor *coor, char *line, char *line2);
 void	connect_point(t_info *info, t_coor *coor, char *line);
-void	place_point(t_img *img, t_coor coor);
-void bresenham(t_img *img, t_coor *coor);
+void	place_point2(t_img *img, int coorx, int coory, int z, int color);
 void	clear_background(t_info *info, int color);
 void	img_pix_put(t_img *img, int x, int y, int color);
 // int	get_coor(t_coor *coor, char *line, int i);

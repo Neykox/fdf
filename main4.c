@@ -1,34 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main2.c                                             :+:      :+:    :+:   */
+/*   main4.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aleroy <aleroy@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/08 17:52:15 by aleroy            #+#    #+#             */
-/*   Updated: 2021/10/08 17:52:18 by aleroy           ###   ########.fr       */
+/*   Created: 2021/12/17 16:11:52 by aleroy            #+#    #+#             */
+/*   Updated: 2021/12/17 16:11:55 by aleroy           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf2.h"
-
-// #define WINDOW_WIDTH 600//1920
-// #define WINDOW_HEIGHT 300//1080
-
-// private function twoDToIso(pt:Point):Point
-//     {
-//         trace(" ");
-//         trace("twoDtoIso:");
-//         trace("2d: " + pt);
-//         var tempPt:Point = new Point(0,0);
-
-//         tempPt.x = (pt.x * tileWidth / 2) + (pt.y * tileWidth / 2);
-//         tempPt.y =  (pt.y * tileHeight / 2) - (pt.x * tileHeight / 2);
-
-
-//         trace("iso: " + tempPt);
-//         return (tempPt);
-//     }
 
 void	place_point2(t_img *img, int coorx, int coory, int z, int color)// z / 2     check  for z's sign
 {
@@ -45,24 +27,16 @@ void	place_point2(t_img *img, int coorx, int coory, int z, int color)// z / 2   
 	// if (z != 0)
 	// 	color = 0x00ff00;
 	img_pix_put(img , coorx, coory, color);
+}
 
-	// x'=(x-z)/sqrt(2)
-	// y'=(x+2y+z)/sqrt(6)
-	// coorx = (x - z) / sqrt(2);
-	// coory = (x + 2 * y + z) / sqrt(6);
-
-	// float	x;
-	// float	y;
-	// float prex;
-	// float prey;
-
-	// x = (float)coorx;
-	// y = (float)coory;
-	// prex = x;
-	// prey = y;
-	// x = (prex - prey) * cos(0.8);//cos(30)
-	// y = (prex + prey) * sin(0.8) - z; //sin(30)
-	// img_pix_put(img , x, y, color);
+void	iso_coor(int x, int y, int *coorx, int *coory, int z)// z / 2     check  for z's sign
+{
+	*coorx = (x - z) / sqrt(2);
+	*coory = (x + 2 * y + z) / sqrt(6);
+	// *coorx = x - y;
+	// *coory = (x + y) / 2;
+	// *coory = *coory - z;
+	// z++;
 }
 
 void	clear_background(t_info *info, int color)
@@ -503,3 +477,4 @@ int	main(int argc, char **argv)
 	// free(info);
 	return (0);
 }
+

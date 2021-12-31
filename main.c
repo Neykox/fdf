@@ -69,6 +69,8 @@ void	place_point2(t_img *img, int coorx, int coory, int color)
 
 void bresenham2(t_img *img, t_coor *coor)
 {
+	printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
+	printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
 	int x;
 	int y;
 	int m_new = 2 * (coor->x1 - coor->xold);//original slope?
@@ -94,6 +96,7 @@ void bresenham2(t_img *img, t_coor *coor)
 			slope_error_new  -= 2 * (coor->y1 - coor->yold);
 		}
 		y++;
+		printf("x = %d, y = %d\n", x, y);
 	}
 	// coor->color = 0xffffff;
 }
@@ -284,7 +287,7 @@ int	render(t_info *info, char *line, int fd) //need to handle /n in line
 				return (-1);
 			place_point(&info->img, coor);
 			// img_pix_put(&info->img , coor.x1, coor.y1, coor.color);
-			printf("render z = %d\n", coor.z1);
+			// printf("render z = %d\n", coor.z1);
 			// coor.x1 = row * 6;
 			coor.x1 = coor.x1 + 15;
 		}

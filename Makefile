@@ -1,5 +1,5 @@
 SRCS = main.c get_next_line.c libft.c
-SRCS2 = main2.c get_next_line.c libft.c
+SRCS2 = main3.c get_next_line.c libft.c bresenham.c
 C.O = ${SRCS:.c=.o}
 H = fdf.h
 NAME = fdf
