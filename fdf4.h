@@ -1,18 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fdf2.h                                             :+:      :+:    :+:   */
+/*   fdf4.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aleroy <aleroy@student.42.fr>              +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/23 21:01:35 by aleroy            #+#    #+#             */
-/*   Updated: 2021/11/23 21:01:37 by aleroy           ###   ########.fr       */
+/*   Created: 2022/01/03 17:53:26 by user42            #+#    #+#             */
+/*   Updated: 2022/01/03 17:53:28 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-#ifndef FDF2_H
-# define FDF2_H
+#ifndef FDF4_H
+# define FDF4_H
 
 // # include <mlx.h>
 # include "mlx_linux/mlx.h"
@@ -86,23 +85,16 @@ int	modif_buf_gnl(char *buf);
 char	*gnl2(char *line, char *buf);
 char	*get_next_line(int fd);
 
-void	rev_coor(t_img *img, t_coor *coor);
-void bresenham4(t_img *img, t_coor *coor);
-void bresenham3(t_img *img, t_coor *coor);
-void bresenham2(t_img *img, t_coor *coor);
-void bresenham(t_img *img, t_coor *coor);
-void	bresenham_new(t_img *img, t_coor *coor);
+void	bresenham_new(t_info *info, t_coor *coor);
 
-void	place_point3(t_img *img, int coorx, int coory, int color);
 void	connect_lines(t_info *info, t_coor *coor, char *line, char *line2);
 void	connect_point(t_info *info, t_coor *coor, char *line);
-void	place_point2(t_img *img, int coorx, int coory, int z, int color);
 void	clear_background(t_info *info, int color);
-void	img_pix_put(t_img *img, int x, int y, int color);
-// int	get_coor(t_coor *coor, char *line, int i);
+void	img_pix_put(t_info *info, t_img *img, int x, int y, int color);
 int	get_coor(t_coor *coor, char *line, int i, int *z);
 int	render(t_info *info, char **line);
 int	handle_event(int key_sym, t_info *info);
 int	main(int argc, char **argv);
 
 #endif
+

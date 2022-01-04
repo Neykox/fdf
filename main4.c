@@ -10,33 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fdf2.h"
+#include "fdf4.h"
 
-void	place_point2(t_img *img, int coorx, int coory, int z, int color)// z / 2     check  for z's sign
+void	iso_coor2(t_info *info, int x, int y, int *coorx, int *coory, int z)
 {
-	int	x;
-	int	y;
-
-	x = coorx;
-	y = coory;
-	coorx = x - y;
-	coory = (x + y) / 2;
-	// coorx = (x - z) / sqrt(2);
-	// coory = (x + 2 * y + z) / sqrt(6);
-	// z++;
-	// if (z != 0)
-	// 	color = 0x00ff00;
-	img_pix_put(img , coorx, coory, color);
-}
-
-void	iso_coor(int x, int y, int *coorx, int *coory, int z)// z / 2     check  for z's sign
-{
-	*coorx = (x - z) / sqrt(2);
-	*coory = (x + 2 * y + z) / sqrt(6);
-	// *coorx = x - y;
-	// *coory = (x + y) / 2;
-	// *coory = *coory - z;
-	// z++;
+	*coorx = x * cos(0.4636 * -1) - y * sin(1.1071 * -1) + info->tile_size;// + 70;
+	// *coorx = *coorx - 2 * (info->wd_width / 3);
+	// *coorx = *coorx
+	// printf("coorx = %d\n", *coorx);
+	*coory = x * sin(0.4636 * -1) + y * cos(1.1071 * -1) - z;
+	// if (info->col == info->longest_line)
+	// 	*coory = *coory + info->wd_height / 2;
+	// else
+	// 	*coory = *coory + 2 * (info->wd_height / 3);
+	*coory = *coory + info->wd_height - (info->col * info->tile_size / 2);
+	// printf("coory = %d\n", *coory);
 }
 
 void	clear_background(t_info *info, int color)
@@ -45,25 +33,30 @@ void	clear_background(t_info *info, int color)
 	int	j;
 
 	j = 0;
-	// color = 0xffffff;
 	while (j < info->wd_height)
 	{
 		i = 0;
 		while (i < info->wd_width)
 		{
-			img_pix_put(&info->img, i, j, color);
+			img_pix_put(info, &info->img, i, j, color);
 			i++;
 		}
-		// color++;
 		j++;
 	}
 }
 
-void	img_pix_put(t_img *img, int x, int y, int color)
+void	img_pix_put(t_info *info, t_img *img, int x, int y, int color)
 {
+	// printf("x = %d | y = %d\n", x, y);
 	char    *pixel;
 
-    pixel = img->addr + (y * img->line_len + x * (img->bpp / 8));
+	if (y < 0 || y > info->wd_height)
+		return ;
+	if (x > info->wd_width && y >= info->wd_height)
+		return ;
+	if (x < 0 && y <= 0)
+		return ;
+	pixel = img->addr + (y * img->line_len + x * (img->bpp / 8));
 	*(int *)pixel = color;
 }
 
@@ -74,7 +67,6 @@ int	get_coor(t_coor *coor, char *line, int i, int *z)
 	if (!((line[i] == '-' || line[i] == '+' || (line[i] >= '0'
 		&& line[i] <= '9')) && line[i]))
 		return (-1);
-	// coor->z1 = ft_atoi(&line[i]);
 	*z = ft_atoi(&line[i]) * coor->tile_size;
 	while ((line[i] == '-' || line[i] == '+') && line[i])
 		i++;
@@ -94,13 +86,7 @@ void	connect_point(t_info *info, t_coor *coor, char *line)
 	i = 0;
 	count = 0;
 	coor->color = 0xff0000;//= red
-	// printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
-	// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
-
-	coor->yold = coor->y1;
-
-	// printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
-	// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
+	coor->_2dyold = coor->_2dy1;
 	while (line[i])
 	{
 		if (count == 1)
@@ -109,25 +95,22 @@ void	connect_point(t_info *info, t_coor *coor, char *line)
 		if (count == 0)
 			coor->zold = coor->z1;
 
-		// if (count == 0)
-		// 	coor->yold = coor->yold - coor->zold;
-		// coor->y1 = coor->y1 - coor->z1;
-
-		coor->xold = coor->x1;
-		coor->x1 = coor->x1 + info->tile_size;
+		coor->_2dxold = coor->_2dx1;
+		coor->_2dx1 = coor->_2dx1 + info->tile_size;
 		if (count == 0)
 			i = get_coor(coor, line, i, &coor->z1);
 		count = 1;
-		printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
-		printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
+
 		if (coor->z1 != 0 || coor->zold != 0)
-			coor->color = 0x00ff00;
+			coor->color = 0x00ff00;//green
 		else
 			coor->color = 0xff0000;//red
-		// if (coor->z1 != 0 || coor->zold != 0)// && coor->z1 != coor->zold)
-		// 	rev_coor(&info->img, coor);
-		// else
-			bresenham(&info->img, coor);
+
+		iso_coor2(info, coor->_2dx1, coor->_2dy1, &coor->x1, &coor->y1, coor->z1);
+		iso_coor2(info, coor->_2dxold, coor->_2dyold, &coor->xold, &coor->yold, coor->zold);
+		// printf("2dxold = %d | 2dyold = %d\n2dx1 = %d | 2dy1 = %d\n", coor->_2dxold, coor->_2dyold, coor->_2dx1, coor->_2dy1);
+		// printf("xold = %d | yold = %d\nx1 = %d | y1 = %d\n\n", coor->xold, coor->yold, coor->x1, coor->y1);
+		bresenham_new(info, coor);
 	}
 }
 
@@ -138,26 +121,24 @@ void	connect_lines(t_info *info, t_coor *coor, char *line, char *line2)// de lin
 
 	i = 0;
 	j = 0;
-	while (line[i] && line2[j])
+	while (line2[i] && line[j])
 	{
-		j = get_coor(coor, line2, j, &coor->zold);
-		i = get_coor(coor, line, i, &coor->z1);
-		coor->xold = coor->x1;
+		j = get_coor(coor, line, j, &coor->zold);
+		i = get_coor(coor, line2, i, &coor->z1);
+		coor->_2dxold = coor->_2dx1;
 
-		// coor->yold = coor->yold - coor->zold;
-		// coor->y1 = coor->y1 - coor->z1;
-
-		// printf("x1 = %d, y1 = %d, z1 = %d\n", coor->x1, coor->y1, coor->z1);
-		// printf("xold = %d, yold = %d, zold = %d\n", coor->xold, coor->yold, coor->zold);
 		if (coor->z1 != 0 || coor->zold != 0)
-			coor->color = 0x00ff00;
+			coor->color = 0x00ff00;//green
 		else
-			coor->color = 0x9b30ff;//purple
-		// if ((coor->z1 != 0 || coor->zold != 0) && coor->z1 != coor->zold)
-		// 	rev_coor(&info->img, coor);
-		// else
-		bresenham2(&info->img, coor);
-		coor->x1 = coor->x1 + info->tile_size;
+			coor->color = 0x0000ff;//0x9b30ff;//purple
+
+		iso_coor2(info, coor->_2dx1, coor->_2dy1, &coor->x1, &coor->y1, coor->z1);
+		iso_coor2(info, coor->_2dxold, coor->_2dyold, &coor->xold, &coor->yold, coor->zold);
+		// img_pix_put(&info->img, coor->x1, coor->y1, 0x0000ff);
+		// img_pix_put(&info->img, coor->xold, coor->yold, 0x9b30ff);
+		bresenham_new(info, coor);
+
+		coor->_2dx1 = coor->_2dx1 + info->tile_size;
 	}
 }
 
@@ -165,47 +146,39 @@ int	render(t_info *info, char **line) //need to handle /n in line
 {
 	t_coor coor;
 	int i;
-	int start = info->wd_height / 2;//int isox = (Width / 2) - (tileLength / 2) + x - y;
-	// info->tile_size = 2;
-	// int j;
+	int start = 0;//info->wd_width;//info->wd_height / 2;//int isox = (Width / 2) - (tileLength / 2) + x - y;
+	// info->tile_size = 10;
+
+
+	// xC = ScreenWidth / 2
+	// yC = ScreenHeight / 2
 
 	i = 0;
-	// j = 0;
-
 	coor.tile_size = info->tile_size;
 	coor.x1 = 0;
 	coor.y1 = 0;//(coor.x1 + coor.y1) / 2
-	coor.x1 = start;//(info->wd_width / 2) - (info->tile_size / 2) + coor.x1 - coor.y1;//int isox = (Width / 2) - (tileLength / 2) + x - y; (info->wd_width / 2) - (info->tile_size / 2) + coor.x1 - coor.y1
 	coor.z1 = 0;
 	coor.xold = 0;
 	coor.yold = 0;
 	coor.zold = 0;
-	clear_background(info, 0x0);//black #define BLACK_PIXEL 0x0 (purple = 0x9b30ff)
+	coor._2dx1 = start;
+	coor._2dy1 = 0;//info->wd_width;
+	coor._2dxold = 0;
+	coor._2dyold = 0;
+	clear_background(info, 0x0);
+
 	while (line[i])
 	{
-		// j = 0;
-		// while (line[i][j])
-		// {
-		// 	j = get_coor(&coor, line[i], j, &coor.z1);
-		// 	if (j == -1)
-		// 		return (-1);
-		// 	place_point(&info->img, coor);
-		// 	// printf("render z = %d\n", coor.z1);
-		// 	// coor.x1 = row * 6;
-		// 	coor.x1 = coor.x1 + info->tile_size;
-		// }
-		// coor.x1 = info->wd_width / 2;
 		connect_point(info, &coor, line[i]);//axe x
 		i++;
 		if (line[i] == NULL)
 			break;//return (-1);?
 
-		coor.yold = coor.y1;
-		coor.y1 = coor.y1 + info->tile_size;
-		coor.x1 = start;
+		coor._2dyold = coor._2dy1;
+		coor._2dy1 = coor._2dy1 + info->tile_size;
+		coor._2dx1 = start;
 		connect_lines(info, &coor, line[i - 1], line[i]);//axe y//inverse i et i - 1
-		coor.x1 = start;
-		// coor.y1 = col * 4;
+		coor._2dx1 = start;
 	}
 
 
@@ -315,16 +288,19 @@ void	get_tile_size(t_info *info, int z)//width * tile_size * 2//not just z but z
 	int tmp_height;
 	int tmp_width;
 
-	info->tile_size = 15;//not bellow 1?
+	info->tile_size = 10;//not bellow 1?
 	i = 0;
 	info->wd_width = info->wd_width + 2;
 	if (z < 0)
 		z = z * -1;
 	info->wd_height = info->wd_height + z;//try with -z ???
+	info->col = info->wd_height - 1 - z;
+	info->longest_line = info->wd_width - 2;
+	printf("col = %d | line = %d\n", info->col, info->longest_line);
 	while (i == 0)
 	{
-		if (info->tile_size*(info->wd_width+info->wd_height)*sqrt(3)/2 > 800//1920
-			|| info->tile_size*(info->wd_width+info->wd_height)/2 > 600)//1080)
+		if (info->tile_size * (info->wd_width + info->wd_height) * sqrt(3)/2 > 1000//1920
+			|| info->tile_size * (info->wd_width + info->wd_height) / 2 > 800)//1080)
 			info->tile_size--;
 		else
 		{
@@ -342,38 +318,9 @@ void	get_tile_size(t_info *info, int z)//width * tile_size * 2//not just z but z
 	info->wd_width = tmp_width;
 	info->wd_height = tmp_height;
 
-	// info->wd_width = 1000;
-	// info->wd_height = 800;
+	info->wd_width = 1000;
+	info->wd_height = 800;
 }
-
-// void	get_tile_size(t_info *info, int z)//width * tile_size * 2//not just z but z * tile_size
-// {
-// 	int	i;
-
-// 	info->tile_size = 15;//not bellow 1?
-// 	i = 0;
-// 	info->wd_width = info->wd_width + 2;
-// 	if (z < 0)
-// 		z = z * -1;
-// 	while (i == 0)
-// 	{
-// 		if (info->wd_width * info->tile_size + 100 > 800//1920
-// 			|| (info->wd_height + z) * info->tile_size > 600)//1080)
-// 			info->tile_size--;
-// 		else
-// 		{
-// 			info->wd_width = info->wd_width * info->tile_size + 100;
-// 			info->wd_height = (info->wd_height + z) * info->tile_size;
-// 			i = 1;
-// 		}
-// 		if (info->tile_size == 1)
-// 		{
-// 			info->wd_width = info->wd_width * info->tile_size + 100;
-// 			info->wd_height = (info->wd_height + z) * info->tile_size;
-// 			i = 1;
-// 		}
-// 	}
-// }
 
 int	get_wd_size(t_info *info, char **line)
 {
@@ -477,4 +424,3 @@ int	main(int argc, char **argv)
 	// free(info);
 	return (0);
 }
-

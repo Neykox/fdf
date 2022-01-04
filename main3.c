@@ -50,7 +50,7 @@
 void	iso_coor2(int x, int y, int *coorx, int *coory, int z)
 {
 	//send iso or 2d coor?
-	*coorx = x * cos(0.4636 * -1) - y * sin(1.1071 * -1);
+	*coorx = x * cos(0.4636 * -1) - y * sin(1.1071 * -1);// + 70;
 	// printf("coorx = %d\n", *coorx);
 	*coory = x * sin(0.4636 * -1) + y * cos(1.1071 * -1) - z;
 	// printf("coory = %d\n", *coory);
@@ -99,8 +99,11 @@ void	clear_background(t_info *info, int color)
 
 void	img_pix_put(t_img *img, int x, int y, int color)
 {
+	// printf("x = %d | y = %d\n", x, y);
 	char    *pixel;
 
+	if (x < 0 || y < 0)
+		return ;
 	pixel = img->addr + (y * img->line_len + x * (img->bpp / 8));
 	// if (*(int *)pixel == 0xff0000 || *(int *)pixel == 0x00ff00)
 	// {
@@ -162,6 +165,8 @@ void	connect_point(t_info *info, t_coor *coor, char *line)
 
 		iso_coor2(coor->_2dx1, coor->_2dy1, &coor->x1, &coor->y1, coor->z1);
 		iso_coor2(coor->_2dxold, coor->_2dyold, &coor->xold, &coor->yold, coor->zold);
+		printf("2dxold = %d | 2dyold = %d\n2dx1 = %d | 2dy1 = %d\n", coor->_2dxold, coor->_2dyold, coor->_2dx1, coor->_2dy1);
+		printf("xold = %d | yold = %d\nx1 = %d | y1 = %d\n\n", coor->xold, coor->yold, coor->x1, coor->y1);
 		// img_pix_put(&info->img, coor->x1, coor->y1, coor->color);
 		// img_pix_put(&info->img, coor->xold, coor->yold, coor->color);
 		// bresenham3(&info->img, coor);
@@ -176,7 +181,7 @@ void	connect_lines(t_info *info, t_coor *coor, char *line, char *line2)// de lin
 
 	i = 0;
 	j = 0;
-	while (line[i] && line2[j])
+	while (line2[i] && line[j])
 	{
 		j = get_coor(coor, line, j, &coor->zold);
 		i = get_coor(coor, line2, i, &coor->z1);
@@ -201,9 +206,9 @@ int	render(t_info *info, char **line) //need to handle /n in line
 {
 	t_coor coor;
 	int i;
-	int start = info->wd_height / 2;//int isox = (Width / 2) - (tileLength / 2) + x - y;
-	info->tile_size = 10;
-	
+	int start = 0;//info->wd_width;//info->wd_height / 2;//int isox = (Width / 2) - (tileLength / 2) + x - y;
+	// info->tile_size = 10;
+
 
 	// xC = ScreenWidth / 2
 	// yC = ScreenHeight / 2
@@ -343,12 +348,14 @@ void	get_tile_size(t_info *info, int z)//width * tile_size * 2//not just z but z
 	int tmp_height;
 	int tmp_width;
 
-	info->tile_size = 15;//not bellow 1?
+	info->tile_size = 10;//not bellow 1?
 	i = 0;
 	info->wd_width = info->wd_width + 2;
 	if (z < 0)
 		z = z * -1;
 	info->wd_height = info->wd_height + z;//try with -z ???
+	info->col = info->wd_height - 1;
+	info->longest_line = info->wd_width - 2;
 	while (i == 0)
 	{
 		if (info->tile_size * (info->wd_width + info->wd_height) * sqrt(3)/2 > 800//1920
